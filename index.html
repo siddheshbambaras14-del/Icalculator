@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iCalculator - Smart Interest & Fast Loan Repayment Calculator</title>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Chart.js for Visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Tailwind Config -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Slider Styling */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: #059669;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+      margin-top: -6px;
+      transition: transform 0.1s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 8px;
+      cursor: pointer;
+      background: #e2e8f0;
+      border-radius: 9999px;
+    }
+    /* Hide spin buttons */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printable-schedule, #printable-schedule * {
+        visibility: visible;
+      }
+      #printable-schedule {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20 font-black text-lg">
+          iC
+        </div>
+        <div>
+          <div class="flex items-center space-x-1.5">
+            <span class="text-xl font-black tracking-tight text-slate-900">iCalculator</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-brand-600 bg-brand-50 border border-brand-200 px-1.5 py-0.5 rounded">Pro Payoff</span>
+          </div>
+          <p class="text-[11px] text-slate-500 hidden sm:block">Interest &amp; Fast Loan Repayment System</p>
+        </div>
+      </div>
+
+      <!-- Currency Switcher & Header Navigation -->
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <div class="flex items-center bg-slate-100 rounded-lg p-1 border border-slate-200 text-xs font-semibold">
+          <button id="curr-inr" class="px-2 py-1 rounded bg-white text-slate-900 shadow-sm transition-all" onclick="setCurrency('INR', '₹')">₹ INR</button>
+          <button id="curr-usd" class="px-2 py-1 rounded text-slate-600 hover:text-slate-900 transition-all" onclick="setCurrency('USD', '$')">$ USD</button>
+          <button id="curr-eur" class="px-2 py-1 rounded text-slate-600 hover:text-slate-900 transition-all" onclick="setCurrency('EUR', '€')">€ EUR</button>
+          <button id="curr-gbp" class="px-2 py-1 rounded text-slate-600 hover:text-slate-900 transition-all" onclick="setCurrency('GBP', '£')">£ GBP</button>
+        </div>
+        <a href="#strategies-guide" class="text-xs sm:text-sm font-medium text-slate-600 hover:text-brand-600 hidden md:block">Payoff Strategies</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Top Banner Ad Placeholder -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+    <div class="bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 border border-dashed border-slate-300 rounded-xl p-3 text-center relative overflow-hidden">
+      <span class="absolute top-1 right-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Advertisement</span>
+      <div class="py-2 text-xs text-slate-500 font-medium flex items-center justify-center space-x-2">
+        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>Google AdSense Header Placement (Responsive 728x90 Banner Slot)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Header -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-3 text-center">
+    <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-brand-50 border border-brand-200 text-brand-700 text-xs font-semibold mb-3">
+      <span>🚀 Smart Prepayment &amp; Pre-closure Engine</span>
+    </div>
+    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight">
+      Interest &amp; <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-teal-600">Fast Loan Repayment</span> Calculator
+    </h1>
+    <p class="mt-3 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto">
+      Calculate Simple, Compound interest, or test real-world loan prepayment strategies to save thousands in interest and become debt-free years early.
+    </p>
+
+    <!-- Mode Selector Tabs -->
+    <div class="mt-8 flex justify-center">
+      <div class="bg-slate-200/80 p-1.5 rounded-2xl flex space-x-1 sm:space-x-2 shadow-inner max-w-md w-full">
+        <button id="tab-si" onclick="switchTab('SI')" class="flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-slate-900">
+          Simple
+        </button>
+        <button id="tab-ci" onclick="switchTab('CI')" class="flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-slate-900">
+          Compound
+        </button>
+        <button id="tab-emi" onclick="switchTab('EMI')" class="flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm bg-white text-slate-900">
+          Loan &amp; Fast Payoff
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Calculator Engine -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Left Column: Input Form & Strategies -->
+      <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+        
+        <!-- Tab Subtitle / Header -->
+        <div class="border-b border-slate-100 pb-4">
+          <h2 id="calc-heading" class="text-xl font-bold text-slate-900 flex items-center space-x-2">
+            <span>Loan EMI &amp; Accelerated Repayment</span>
+          </h2>
+          <p id="calc-subheading" class="text-xs sm:text-sm text-slate-500 mt-1">
+            Simulate monthly loan EMIs and see the impact of stepping up payments or paying extra EMIs annually.
+          </p>
+        </div>
+
+        <!-- Input 1: Principal Amount -->
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <label id="lbl-principal" class="text-sm font-bold text-slate-700">Loan Amount (Principal)</label>
+            <div class="relative w-44">
+              <span id="prefix-principal" class="absolute left-3 top-2 text-slate-400 font-semibold text-sm">₹</span>
+              <input type="number" id="inp-principal" class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-right font-bold text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500" value="3000000" min="5000" max="20000000" step="10000">
+            </div>
+          </div>
+          <input type="range" id="range-principal" min="50000" max="10000000" step="25000" value="3000000">
+          <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+            <span id="min-principal-lbl">50K</span>
+            <span id="mid-principal-lbl">50 Lakhs</span>
+            <span id="max-principal-lbl">1 Crore / 10M</span>
+          </div>
+        </div>
+
+        <!-- Input 2: Annual Interest Rate -->
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <label class="text-sm font-bold text-slate-700">Interest Rate (p.a)</label>
+            <div class="relative w-28">
+              <input type="number" id="inp-rate" class="w-full pr-7 pl-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-right font-bold text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500" value="8.5" min="0.1" max="28" step="0.1">
+              <span class="absolute right-3 top-2 text-slate-400 font-semibold text-sm">%</span>
+            </div>
+          </div>
+          <input type="range" id="range-rate" min="1" max="25" step="0.1" value="8.5">
+          <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+            <span>1%</span>
+            <span>12.5%</span>
+            <span>25%</span>
+          </div>
+        </div>
+
+        <!-- Input 3: Tenure & Unit Toggle -->
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <div class="flex items-center space-x-2">
+              <label class="text-sm font-bold text-slate-700">Loan Tenure</label>
+              <div class="inline-flex bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs">
+                <button type="button" id="btn-tenure-yr" class="px-2 py-0.5 rounded bg-white text-slate-800 font-bold shadow-xs">Yr</button>
+                <button type="button" id="btn-tenure-mo" class="px-2 py-0.5 rounded text-slate-500 font-medium">Mo</button>
+              </div>
+            </div>
+            <div class="relative w-28">
+              <input type="number" id="inp-tenure" class="w-full pr-10 pl-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-right font-bold text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500" value="20" min="1" max="40" step="1">
+              <span id="tenure-unit-lbl" class="absolute right-3 top-2 text-slate-400 font-medium text-xs">Years</span>
+            </div>
+          </div>
+          <input type="range" id="range-tenure" min="1" max="30" step="1" value="20">
+          <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+            <span id="min-tenure-lbl">1 Yr</span>
+            <span id="mid-tenure-lbl">15 Yrs</span>
+            <span id="max-tenure-lbl">30 Yrs</span>
+          </div>
+        </div>
+
+        <!-- Compound Frequency Selection (Hidden on SI and EMI) -->
+        <div id="freq-wrapper" class="hidden pt-3 border-t border-slate-100">
+          <label class="block text-sm font-bold text-slate-700 mb-2">Compounding Frequency</label>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <button type="button" data-freq="1" class="freq-btn py-2 px-3 text-xs font-semibold rounded-xl border border-brand-500 bg-brand-50 text-brand-700">Annual</button>
+            <button type="button" data-freq="2" class="freq-btn py-2 px-3 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Half-Yearly</button>
+            <button type="button" data-freq="4" class="freq-btn py-2 px-3 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Quarterly</button>
+            <button type="button" data-freq="12" class="freq-btn py-2 px-3 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">Monthly</button>
+          </div>
+        </div>
+
+        <!-- FAST REPAYMENT & PREPAYMENT SUITE (Active in EMI Mode) -->
+        <div id="prepayment-card" class="bg-gradient-to-br from-brand-50/70 via-emerald-50/40 to-teal-50/50 border border-brand-200 rounded-2xl p-5 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2.5">
+              <span class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-sm font-black shadow-sm">⚡</span>
+              <div>
+                <h3 class="text-sm font-extrabold text-slate-900">Fast Payoff &amp; Prepayment Options</h3>
+                <p class="text-[11px] text-slate-600">Simulate rent-like annual hikes &amp; extra bonus EMIs</p>
+              </div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="chk-enable-prepay" class="sr-only peer" checked>
+              <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+            </label>
+          </div>
+
+          <div id="prepayment-controls" class="pt-3 border-t border-brand-200/60 space-y-4">
+            
+            <!-- Strategy 1: Extra EMIs Per Year -->
+            <div class="bg-white p-3.5 rounded-xl border border-brand-100 shadow-xs">
+              <div class="flex justify-between items-center mb-1.5">
+                <div class="flex items-center space-x-1.5">
+                  <span class="text-xs font-bold text-slate-800">Strategy 1: Pay Extra EMIs Every Year</span>
+                  <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">Bonus Tip</span>
+                </div>
+                <span id="lbl-extra-emis" class="text-xs font-extrabold text-brand-700">1 Extra EMI/yr</span>
+              </div>
+              <input type="range" id="range-extra-emis" min="0" max="3" step="1" value="1">
+              <div class="flex justify-between text-[10px] text-slate-400 mt-0.5 font-medium">
+                <span>0 (Standard)</span>
+                <span>1 EMI (Annual Bonus)</span>
+                <span>2 EMIs</span>
+                <span>3 EMIs</span>
+              </div>
+            </div>
+
+            <!-- Strategy 2: Annual Step-up EMI % (Rent-hike mechanism) -->
+            <div class="bg-white p-3.5 rounded-xl border border-brand-100 shadow-xs">
+              <div class="flex justify-between items-center mb-1.5">
+                <div>
+                  <div class="text-xs font-bold text-slate-800">Strategy 2: Annual EMI Step-Up %</div>
+                  <div class="text-[10px] text-slate-500">Increase EMI each year as salary grows (like 5%-7% annual rent hikes)</div>
+                </div>
+                <div class="relative w-20">
+                  <input type="number" id="inp-stepup" class="w-full pr-6 pl-2 py-1 bg-slate-50 border border-slate-300 rounded text-right font-bold text-slate-800 text-xs focus:bg-white focus:outline-none" value="5" min="0" max="20" step="1">
+                  <span class="absolute right-2 top-1 text-slate-400 font-semibold text-xs">%</span>
+                </div>
+              </div>
+              <input type="range" id="range-stepup" min="0" max="15" step="1" value="5">
+              <div class="flex justify-between text-[10px] text-slate-400 mt-0.5 font-medium">
+                <span>0% (Flat)</span>
+                <span class="text-emerald-700 font-bold">5% (Recommended)</span>
+                <span class="text-emerald-700 font-bold">7% (Rent Hike)</span>
+                <span>15%</span>
+              </div>
+            </div>
+
+            <!-- Strategy 3: Additional Monthly Payment & Lumpsum -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <!-- Extra Monthly Payment -->
+              <div class="bg-white p-3 rounded-xl border border-brand-100 shadow-xs">
+                <label class="block text-xs font-bold text-slate-800 mb-1">Extra Monthly Top-up</label>
+                <div class="relative">
+                  <span class="absolute left-2.5 top-1.5 text-slate-400 text-xs font-semibold prefix-sym">₹</span>
+                  <input type="number" id="inp-extra-monthly" class="w-full pl-6 pr-2 py-1 text-xs bg-slate-50 border border-slate-300 rounded text-right font-bold text-slate-800" value="0" min="0" step="500">
+                </div>
+                <span class="text-[10px] text-slate-400 mt-1 block">Added to regular EMI every month</span>
+              </div>
+
+              <!-- One-Time Lumpsum Prepayment -->
+              <div class="bg-white p-3 rounded-xl border border-brand-100 shadow-xs">
+                <div class="flex justify-between items-center mb-1">
+                  <label class="text-xs font-bold text-slate-800">One-Time Lumpsum</label>
+                  <select id="sel-lumpsum-yr" class="text-[11px] bg-slate-50 border border-slate-300 rounded px-1 py-0.5 font-semibold text-slate-700">
+                    <option value="1">In Year 1</option>
+                    <option value="2">In Year 2</option>
+                    <option value="3" selected>In Year 3</option>
+                    <option value="5">In Year 5</option>
+                  </select>
+                </div>
+                <div class="relative">
+                  <span class="absolute left-2.5 top-1.5 text-slate-400 text-xs font-semibold prefix-sym">₹</span>
+                  <input type="number" id="inp-lumpsum" class="w-full pl-6 pr-2 py-1 text-xs bg-slate-50 border border-slate-300 rounded text-right font-bold text-slate-800" value="0" min="0" step="10000">
+                </div>
+                <span class="text-[10px] text-slate-400 mt-1 block">Single prepayment from investments</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Presets Bar -->
+        <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+          <span class="text-xs text-slate-400">Quick Presets:</span>
+          <div class="flex flex-wrap gap-1.5">
+            <button onclick="applyPreset(5000000, 8.5, 20, 'Yr', 1, 5)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium">Home Loan (50L)</button>
+            <button onclick="applyPreset(1000000, 9.2, 5, 'Yr', 1, 0)" class="px-2.5 py-1 text-xs rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium">Car Loan (10L)</button>
+            <button onclick="resetDefaults()" class="px-2.5 py-1 text-xs rounded-lg text-rose-600 hover:bg-rose-50 font-medium">Reset</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Comparative Payoff & Live Charts -->
+      <div class="lg:col-span-5 space-y-6">
+        
+        <!-- Accelerated Impact Banner (Visible in EMI mode when active) -->
+        <div id="impact-banner" class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-5 text-white shadow-lg space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-black uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded text-white">Prepayment Triumph</span>
+            <span id="badge-tenure-saved" class="text-xs font-black bg-emerald-400/30 text-emerald-100 border border-emerald-300/40 px-2.5 py-1 rounded-full">
+              Save 8 Yrs 4 Mos
+            </span>
+          </div>
+          <div>
+            <div class="text-xs text-emerald-100 font-medium">Total Interest Saved with Fast Strategy:</div>
+            <div id="res-interest-saved" class="text-3xl sm:text-4xl font-black text-white tracking-tight mt-0.5">₹0</div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 pt-2 border-t border-emerald-500/40 text-xs">
+            <div>
+              <span class="text-emerald-200 block text-[11px]">Original Tenure:</span>
+              <span id="lbl-orig-tenure" class="font-bold">20 Years (240 Mos)</span>
+            </div>
+            <div>
+              <span class="text-emerald-200 block text-[11px]">New Payoff Tenure:</span>
+              <span id="lbl-new-tenure" class="font-bold text-emerald-200">11 Yrs 8 Mos</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary Comparison Dashboard -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+          <div class="flex justify-between items-center mb-4">
+            <span class="text-xs uppercase font-bold tracking-wider text-slate-400">Payment Breakdown</span>
+            <span id="comparison-mode-tag" class="text-[10px] bg-slate-100 font-semibold px-2 py-0.5 rounded text-slate-600">Standard Schedule</span>
+          </div>
+
+          <!-- Base EMI Display -->
+          <div id="emi-highlight-card" class="mb-5 p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="flex justify-between items-center">
+              <div>
+                <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Starting Monthly Installment (EMI)</div>
+                <div id="res-emi-val" class="text-2xl sm:text-3xl font-black text-slate-900 mt-0.5">₹26,035</div>
+              </div>
+              <div class="text-right">
+                <span class="text-[10px] text-slate-400 block">Principal</span>
+                <span id="res-principal-val" class="text-sm font-bold text-slate-800">₹30,00,000</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comparative Columns (Regular vs Accelerated) -->
+          <div id="comparison-grid" class="grid grid-cols-2 gap-3 pb-4 border-b border-slate-100">
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <span class="text-[10px] font-bold text-slate-400 uppercase block">Regular Plan</span>
+              <span class="text-xs text-slate-500 block mt-0.5">Total Interest:</span>
+              <div id="res-reg-interest" class="text-sm sm:text-base font-bold text-slate-700 mt-0.5">₹32,48,300</div>
+              <span class="text-[11px] text-slate-500 block mt-1">Total: <strong id="res-reg-total" class="text-slate-800">₹62.48L</strong></span>
+            </div>
+
+            <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+              <span class="text-[10px] font-bold text-emerald-800 uppercase block">Accelerated Plan</span>
+              <span class="text-xs text-emerald-700 block mt-0.5">Interest Paid:</span>
+              <div id="res-acc-interest" class="text-sm sm:text-base font-bold text-emerald-700 mt-0.5">₹18,12,400</div>
+              <span class="text-[11px] text-emerald-800 block mt-1">Total: <strong id="res-acc-total" class="text-emerald-900">₹48.12L</strong></span>
+            </div>
+          </div>
+
+          <!-- Chart.js Donut -->
+          <div class="mt-4 pt-2">
+            <div class="relative h-48 w-full flex items-center justify-center">
+              <canvas id="ratioChart"></canvas>
+            </div>
+            <div id="chart-legend" class="flex justify-center flex-wrap gap-x-4 gap-y-1 mt-3 text-xs font-medium">
+              <div class="flex items-center space-x-1.5">
+                <span class="w-3 h-3 rounded-full bg-slate-400"></span>
+                <span class="text-slate-600">Principal</span>
+              </div>
+              <div class="flex items-center space-x-1.5">
+                <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                <span id="chart-interest-lbl" class="text-slate-600">Interest Payable</span>
+              </div>
+              <div id="chart-saved-legend" class="flex items-center space-x-1.5">
+                <span class="w-3 h-3 rounded-full bg-teal-400"></span>
+                <span class="text-slate-600 font-semibold text-teal-700">Interest Saved</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar Ad Placement -->
+        <div class="bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 border border-dashed border-slate-300 rounded-2xl p-4 text-center relative overflow-hidden">
+          <span class="absolute top-2 right-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">Sponsored</span>
+          <div class="py-5 text-xs text-slate-500 font-medium flex flex-col items-center justify-center space-y-1">
+            <svg class="w-6 h-6 text-slate-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span class="font-bold text-slate-700">Home Loan Transfer &amp; Balance Takeover</span>
+            <span class="text-[11px] text-slate-400">Google AdSense / High CPC Financial Lead Aggregator (300x250)</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Amortization / Year-by-Year Schedule -->
+    <section id="printable-schedule" class="mt-10 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900" id="schedule-title">Amortization &amp; Payoff Progression Schedule</h3>
+          <p class="text-xs text-slate-500 mt-0.5" id="schedule-subtitle">Detailed breakdown of principal repayment, interest accrued, prepayments, and closing debt.</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="window.print()" class="px-3.5 py-2 text-xs font-semibold rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 flex items-center space-x-1.5 transition">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            <span>Print Schedule</span>
+          </button>
+          <button onclick="exportCSV()" class="px-3.5 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white flex items-center space-x-1.5 transition shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>Download CSV</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Schedule Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200 uppercase text-[11px] tracking-wider">
+            <tr>
+              <th class="py-3.5 px-4 sm:px-6">Year</th>
+              <th class="py-3.5 px-4 sm:px-6 text-right">Opening Balance</th>
+              <th class="py-3.5 px-4 sm:px-6 text-right">Regular EMI Paid</th>
+              <th class="py-3.5 px-4 sm:px-6 text-right text-emerald-700" id="th-prepay-col">Prepayment / Step-up</th>
+              <th class="py-3.5 px-4 sm:px-6 text-right text-rose-600" id="th-interest-col">Interest Paid</th>
+              <th class="py-3.5 px-4 sm:px-6 text-right">Closing Balance</th>
+            </tr>
+          </thead>
+          <tbody id="schedule-table-body" class="divide-y divide-slate-100 font-medium">
+            <!-- Dynamically populated rows -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SEO Educational Guide & Strategic Playbook (Crucial for AdSense Value) -->
+    <section id="strategies-guide" class="mt-12 space-y-8">
+      
+      <!-- Feature Spotlight: The Rent Hike & Bonus Strategy -->
+      <div class="bg-gradient-to-br from-white to-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs">
+        <div class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold mb-3">
+          💡 The Secret Behind Fast Loan Pre-closure
+        </div>
+        <h3 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+          How Stepping Up Your EMI Like a Rent Hike Saves Lakhs
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+          Most home loan borrowers pay rent that increases by <strong>5% to 10% each year</strong>. However, when taking out a 20 or 30-year loan, they keep their monthly EMI completely flat despite getting regular annual salary appraisals. By applying that same rental escalation discipline to your EMI, you directly slash your loan principal.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div class="p-4 rounded-xl bg-white border border-slate-200">
+            <div class="font-bold text-slate-900 text-sm flex items-center space-x-2">
+              <span class="w-6 h-6 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs">1</span>
+              <span>1 Extra EMI Every Year</span>
+            </div>
+            <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+              Paying just 1 extra EMI each year using your annual bonus or tax return knocks off nearly <strong>4 to 5 years</strong> from a 20-year home loan because 100% of that extra payment directly deducts the compounding principal.
+            </p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-white border border-slate-200">
+            <div class="font-bold text-slate-900 text-sm flex items-center space-x-2">
+              <span class="w-6 h-6 rounded bg-teal-100 text-teal-700 flex items-center justify-center text-xs">2</span>
+              <span>The 5% to 7% Annual Step-Up</span>
+            </div>
+            <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+              If your initial EMI is ₹30,000, increasing it by just 5% next year (to ₹31,500) cuts a 20-year mortgage down to under <strong>12 years</strong>, saving you over 40% of the entire loan interest bill.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formula Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200">
+          <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm mb-3">SI</div>
+          <h4 class="text-sm font-bold text-slate-900">Simple Interest</h4>
+          <p class="text-xs text-slate-500 mt-1 font-mono">SI = (P × R × T) / 100</p>
+          <p class="text-xs text-slate-600 mt-2">Interest is charged linearly on the initial principal sum only.</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200">
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm mb-3">CI</div>
+          <h4 class="text-sm font-bold text-slate-900">Compound Interest</h4>
+          <p class="text-xs text-slate-500 mt-1 font-mono">A = P × (1 + r/n)^(n×t)</p>
+          <p class="text-xs text-slate-600 mt-2">Interest accumulates on principal plus previous returns.</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200">
+          <div class="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-sm mb-3">EMI</div>
+          <h4 class="text-sm font-bold text-slate-900">Standard EMI</h4>
+          <p class="text-xs text-slate-500 mt-1 font-mono">E = [P·r·(1+r)^n] / [(1+r)^n - 1]</p>
+          <p class="text-xs text-slate-600 mt-2">Equated monthly installment amortizing interest and principal.</p>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8">
+        <h3 class="text-xl font-bold text-slate-900 mb-6">Frequently Asked Questions</h3>
+        <div class="divide-y divide-slate-100 space-y-3">
+          <details class="group pt-3" open>
+            <summary class="flex justify-between items-center font-semibold text-slate-800 cursor-pointer list-none text-xs sm:text-sm">
+              <span>Are there any bank penalties for prepaying or stepping up a floating rate home loan?</span>
+              <span class="transition group-open:rotate-180">
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </summary>
+            <p class="text-slate-600 text-xs sm:text-sm mt-2 leading-relaxed">
+              In most jurisdictions (including RBI regulations in India), banks and housing finance corporations are strictly prohibited from levying foreclosure charges or prepayment penalties on floating-rate individual home loans. You can make prepayments anytime at zero penalty.
+            </p>
+          </details>
+
+          <details class="group pt-3">
+            <summary class="flex justify-between items-center font-semibold text-slate-800 cursor-pointer list-none text-xs sm:text-sm">
+              <span>Should I reduce my monthly EMI or reduce my loan tenure when prepaying?</span>
+              <span class="transition group-open:rotate-180">
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </summary>
+            <p class="text-slate-600 text-xs sm:text-sm mt-2 leading-relaxed">
+              Always choose to <strong>reduce tenure</strong> instead of reducing the monthly EMI amount if your cash flow permits. Reducing tenure preserves the velocity of debt reduction and maximizes your compound interest savings.
+            </p>
+          </details>
+
+          <details class="group pt-3">
+            <summary class="flex justify-between items-center font-semibold text-slate-800 cursor-pointer list-none text-xs sm:text-sm">
+              <span>Why is an EMI step-up better than waiting to make a large lumpsum payment?</span>
+              <span class="transition group-open:rotate-180">
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </span>
+            </summary>
+            <p class="text-slate-600 text-xs sm:text-sm mt-2 leading-relaxed">
+              Interest charges on loans are highest in the initial years. Making regular monthly or annual step-ups prevents huge sums of interest from compounding early in the loan's life cycle, providing far greater mathematical leverage than waiting years to gather a lumpsum.
+            </p>
+          </details>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 mt-16 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:flex sm:justify-between sm:items-center">
+      <div class="flex items-center justify-center sm:justify-start space-x-2">
+        <span class="font-bold text-slate-800">iCalculator</span>
+        <span class="text-xs text-slate-400">• Interest &amp; Fast Repayment Engine</span>
+      </div>
+      <p class="text-xs text-slate-500 mt-2 sm:mt-0">
+        © <span id="cur-year">2026</span> iCalculator. Banking amortizations calculated according to standard financial standards.
+      </p>
+      <div class="mt-4 sm:mt-0 flex justify-center space-x-6 text-xs text-slate-500">
+        <a href="#strategies-guide" class="hover:text-brand-600 transition">Strategies</a>
+        <a href="#printable-schedule" class="hover:text-brand-600 transition">Amortization</a>
+        <a href="#" class="hover:text-brand-600 transition">Privacy</a>
+        <a href="#" class="hover:text-brand-600 transition">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Engine -->
+  <script>
+    // Global State
+    let currentTab = 'EMI'; // Default to EMI & fast payoff
+    let tenureUnit = 'Yr';
+    let compoundFrequency = 1;
+    let currencySymbol = '₹';
+    let currencyCode = 'INR';
+
+    let ratioChart = null;
+
+    // Elements
+    const inpPrincipal = document.getElementById('inp-principal');
+    const rangePrincipal = document.getElementById('range-principal');
+    const inpRate = document.getElementById('inp-rate');
+    const rangeRate = document.getElementById('range-rate');
+    const inpTenure = document.getElementById('inp-tenure');
+    const rangeTenure = document.getElementById('range-tenure');
+    
+    const btnTenureYr = document.getElementById('btn-tenure-yr');
+    const btnTenureMo = document.getElementById('btn-tenure-mo');
+    const tenureUnitLbl = document.getElementById('tenure-unit-lbl');
+    const freqWrapper = document.getElementById('freq-wrapper');
+    const prepaymentCard = document.getElementById('prepayment-card');
+    const impactBanner = document.getElementById('impact-banner');
+    const chkEnablePrepay = document.getElementById('chk-enable-prepay');
+    const prepayControls = document.getElementById('prepayment-controls');
+    
+    const rangeExtraEmis = document.getElementById('range-extra-emis');
+    const lblExtraEmis = document.getElementById('lbl-extra-emis');
+    const inpStepup = document.getElementById('inp-stepup');
+    const rangeStepup = document.getElementById('range-stepup');
+    const inpExtraMonthly = document.getElementById('inp-extra-monthly');
+    const inpLumpsum = document.getElementById('inp-lumpsum');
+    const selLumpsumYr = document.getElementById('sel-lumpsum-yr');
+
+    // Number Formatting
+    function formatMoney(amount) {
+      if (isNaN(amount) || !isFinite(amount)) return `${currencySymbol}0`;
+      const locale = currencyCode === 'INR' ? 'en-IN' : (currencyCode === 'GBP' ? 'en-GB' : (currencyCode === 'EUR' ? 'de-DE' : 'en-US'));
+      return currencySymbol + Math.round(amount).toLocaleString(locale);
+    }
+
+    // Currency Switcher
+    function setCurrency(code, symbol) {
+      currencyCode = code;
+      currencySymbol = symbol;
+      
+      document.getElementById('prefix-principal').innerText = symbol;
+      document.querySelectorAll('.prefix-sym').forEach(el => el.innerText = symbol);
+      
+      ['inr', 'usd', 'eur', 'gbp'].forEach(c => {
+        const btn = document.getElementById(`curr-${c}`);
+        if (btn) {
+          btn.className = (c === code.toLowerCase()) 
+            ? "px-2 py-1 rounded bg-white text-slate-900 shadow-sm transition-all" 
+            : "px-2 py-1 rounded text-slate-600 hover:text-slate-900 transition-all";
+        }
+      });
+
+      calculateAndRender();
+    }
+
+    // Tab Switching
+    function switchTab(tab) {
+      currentTab = tab;
+      
+      const tabSI = document.getElementById('tab-si');
+      const tabCI = document.getElementById('tab-ci');
+      const tabEMI = document.getElementById('tab-emi');
+      
+      const activeClass = "flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm bg-white text-slate-900";
+      const inactiveClass = "flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-slate-900";
+
+      tabSI.className = (tab === 'SI') ? activeClass : inactiveClass;
+      tabCI.className = (tab === 'CI') ? activeClass : inactiveClass;
+      tabEMI.className = (tab === 'EMI') ? activeClass : inactiveClass;
+
+      const heading = document.getElementById('calc-heading');
+      const subheading = document.getElementById('calc-subheading');
+      const emiCard = document.getElementById('emi-highlight-card');
+      const comparisonGrid = document.getElementById('comparison-grid');
+      const thPrepay = document.getElementById('th-prepay-col');
+      const scheduleTitle = document.getElementById('schedule-title');
+
+      if (tab === 'SI') {
+        heading.innerText = "Simple Interest Calculator";
+        subheading.innerText = "Calculate linear interest accrued on fixed capital over time.";
+        freqWrapper.classList.add('hidden');
+        prepaymentCard.classList.add('hidden');
+        impactBanner.classList.add('hidden');
+        emiCard.classList.add('hidden');
+        comparisonGrid.classList.add('hidden');
+        thPrepay.classList.add('hidden');
+        scheduleTitle.innerText = "Annual Capital Growth Schedule";
+      } else if (tab === 'CI') {
+        heading.innerText = "Compound Interest Calculator";
+        subheading.innerText = "Calculate compounding wealth growth with customized compounding intervals.";
+        freqWrapper.classList.remove('hidden');
+        prepaymentCard.classList.add('hidden');
+        impactBanner.classList.add('hidden');
+        emiCard.classList.add('hidden');
+        comparisonGrid.classList.add('hidden');
+        thPrepay.classList.add('hidden');
+        scheduleTitle.innerText = "Compound Growth Schedule";
+      } else if (tab === 'EMI') {
+        heading.innerText = "Loan EMI & Accelerated Repayment";
+        subheading.innerText = "Simulate monthly loan EMIs and see the impact of stepping up payments or paying extra EMIs annually.";
+        freqWrapper.classList.add('hidden');
+        prepaymentCard.classList.remove('hidden');
+        emiCard.classList.remove('hidden');
+        comparisonGrid.classList.remove('hidden');
+        thPrepay.classList.remove('hidden');
+        scheduleTitle.innerText = "Amortization & Payoff Progression Schedule";
+      }
+
+      calculateAndRender();
+    }
+
+    // Toggle Tenure Unit
+    btnTenureYr.addEventListener('click', () => setTenureUnit('Yr'));
+    btnTenureMo.addEventListener('click', () => setTenureUnit('Mo'));
+
+    function setTenureUnit(unit) {
+      if (tenureUnit === unit) return;
+      tenureUnit = unit;
+      const currentVal = parseFloat(inpTenure.value) || 1;
+      
+      if (unit === 'Yr') {
+        btnTenureYr.className = "px-2 py-0.5 rounded bg-white text-slate-800 font-bold shadow-xs";
+        btnTenureMo.className = "px-2 py-0.5 rounded text-slate-500 font-medium";
+        tenureUnitLbl.innerText = "Years";
+        rangeTenure.min = 1;
+        rangeTenure.max = 30;
+        rangeTenure.step = 1;
+        const newYr = Math.max(1, Math.min(30, Math.round(currentVal / 12)));
+        inpTenure.value = newYr;
+        rangeTenure.value = newYr;
+        document.getElementById('min-tenure-lbl').innerText = "1 Yr";
+        document.getElementById('mid-tenure-lbl').innerText = "15 Yrs";
+        document.getElementById('max-tenure-lbl').innerText = "30 Yrs";
+      } else {
+        btnTenureMo.className = "px-2 py-0.5 rounded bg-white text-slate-800 font-bold shadow-xs";
+        btnTenureYr.className = "px-2 py-0.5 rounded text-slate-500 font-medium";
+        tenureUnitLbl.innerText = "Months";
+        rangeTenure.min = 1;
+        rangeTenure.max = 360;
+        rangeTenure.step = 1;
+        const newMo = Math.max(1, Math.min(360, Math.round(currentVal * 12)));
+        inpTenure.value = newMo;
+        rangeTenure.value = newMo;
+        document.getElementById('min-tenure-lbl').innerText = "1 Mo";
+        document.getElementById('mid-tenure-lbl').innerText = "180 Mo";
+        document.getElementById('max-tenure-lbl').innerText = "360 Mo";
+      }
+      calculateAndRender();
+    }
+
+    // Compounding Frequency
+    document.querySelectorAll('.freq-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.freq-btn').forEach(b => {
+          b.className = "freq-btn py-2 px-3 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50";
+        });
+        this.className = "freq-btn py-2 px-3 text-xs font-semibold rounded-xl border border-brand-500 bg-brand-50 text-brand-700";
+        compoundFrequency = parseInt(this.getAttribute('data-freq'));
+        calculateAndRender();
+      });
+    });
+
+    // Slider Sync
+    function bindSliderAndInput(slider, input, callback) {
+      slider.addEventListener('input', () => {
+        input.value = slider.value;
+        callback();
+      });
+      input.addEventListener('input', () => {
+        slider.value = input.value;
+        callback();
+      });
+    }
+
+    bindSliderAndInput(rangePrincipal, inpPrincipal, calculateAndRender);
+    bindSliderAndInput(rangeRate, inpRate, calculateAndRender);
+    bindSliderAndInput(rangeTenure, inpTenure, calculateAndRender);
+    bindSliderAndInput(rangeStepup, inpStepup, calculateAndRender);
+
+    // Extra EMIs Slider Handler
+    rangeExtraEmis.addEventListener('input', () => {
+      const val = parseInt(rangeExtraEmis.value);
+      lblExtraEmis.innerText = val === 0 ? "0 Extra (Standard)" : `${val} Extra EMI${val > 1 ? 's' : ''}/yr`;
+      calculateAndRender();
+    });
+
+    // Prepayment Toggle & Input Listeners
+    chkEnablePrepay.addEventListener('change', () => {
+      prepayControls.style.opacity = chkEnablePrepay.checked ? "1" : "0.4";
+      prepayControls.style.pointerEvents = chkEnablePrepay.checked ? "auto" : "none";
+      calculateAndRender();
+    });
+
+    inpExtraMonthly.addEventListener('input', calculateAndRender);
+    inpLumpsum.addEventListener('input', calculateAndRender);
+    selLumpsumYr.addEventListener('change', calculateAndRender);
+
+    // Presets
+    function applyPreset(principal, rate, tenure, unit, extraEmis = 1, stepUp = 5) {
+      if (currentTab !== 'EMI') switchTab('EMI');
+      if (tenureUnit !== unit) setTenureUnit(unit);
+      
+      inpPrincipal.value = principal;
+      rangePrincipal.value = principal;
+      inpRate.value = rate;
+      rangeRate.value = rate;
+      inpTenure.value = tenure;
+      rangeTenure.value = tenure;
+      
+      rangeExtraEmis.value = extraEmis;
+      lblExtraEmis.innerText = extraEmis === 0 ? "0 Extra" : `${extraEmis} Extra EMI/yr`;
+      inpStepup.value = stepUp;
+      rangeStepup.value = stepUp;
+      
+      chkEnablePrepay.checked = true;
+      prepayControls.style.opacity = "1";
+      prepayControls.style.pointerEvents = "auto";
+      
+      calculateAndRender();
+    }
+
+    function resetDefaults() {
+      applyPreset(3000000, 8.5, 20, 'Yr', 1, 5);
+      inpExtraMonthly.value = 0;
+      inpLumpsum.value = 0;
+    }
+
+    // MAIN CALCULATION ENGINE
+    function calculateAndRender() {
+      const P = parseFloat(inpPrincipal.value) || 0;
+      const R = parseFloat(inpRate.value) || 0;
+      const rawTenure = parseFloat(inpTenure.value) || 0;
+      const T_years = tenureUnit === 'Yr' ? rawTenure : (rawTenure / 12);
+      const totalMonths = tenureUnit === 'Yr' ? Math.round(rawTenure * 12) : Math.round(rawTenure);
+
+      // Simple Interest Tab
+      if (currentTab === 'SI') {
+        const totalInterest = (P * R * T_years) / 100;
+        const totalAmount = P + totalInterest;
+
+        document.getElementById('res-principal-val').innerText = formatMoney(P);
+        document.getElementById('res-reg-interest').innerText = formatMoney(totalInterest);
+        document.getElementById('res-reg-total').innerText = formatMoney(totalAmount);
+        
+        let scheduleRows = [];
+        const wholeYears = Math.max(1, Math.ceil(T_years));
+        const interestPerYear = totalInterest / T_years;
+        let bal = P;
+        for (let y = 1; y <= wholeYears; y++) {
+          const open = bal;
+          bal += interestPerYear;
+          scheduleRows.push({
+            year: `Year ${y}`,
+            opening: open,
+            regularEmi: interestPerYear,
+            prepay: 0,
+            interest: interestPerYear,
+            closing: bal
+          });
+        }
+
+        renderTable(scheduleRows, false);
+        updateChart(P, totalInterest, 0);
+        return;
+      }
+
+      // Compound Interest Tab
+      if (currentTab === 'CI') {
+        const n = compoundFrequency;
+        const rateDecimal = R / 100;
+        const totalAmount = P * Math.pow((1 + (rateDecimal / n)), (n * T_years));
+        const totalInterest = totalAmount - P;
+
+        document.getElementById('res-principal-val').innerText = formatMoney(P);
+        document.getElementById('res-reg-interest').innerText = formatMoney(totalInterest);
+        document.getElementById('res-reg-total').innerText = formatMoney(totalAmount);
+
+        let scheduleRows = [];
+        const wholeYears = Math.max(1, Math.ceil(T_years));
+        let cur = P;
+        for (let y = 1; y <= wholeYears; y++) {
+          const open = cur;
+          const endYearVal = P * Math.pow((1 + (rateDecimal / n)), (n * y));
+          const interestEarned = endYearVal - cur;
+          cur = endYearVal;
+          scheduleRows.push({
+            year: `Year ${y}`,
+            opening: open,
+            regularEmi: interestEarned,
+            prepay: 0,
+            interest: interestEarned,
+            closing: endYearVal
+          });
+        }
+
+        renderTable(scheduleRows, false);
+        updateChart(P, totalInterest, 0);
+        return;
+      }
+
+      // EMI & Accelerated Repayment Mode
+      const monthlyRate = (R / 12) / 100;
+      let baseEMI = 0;
+      if (monthlyRate === 0) {
+        baseEMI = P / totalMonths;
+      } else {
+        baseEMI = (P * monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
+      }
+
+      // 1. Calculate Standard Regular Loan Amortization (No prepayments)
+      let regBalance = P;
+      let regTotalInterest = 0;
+      for (let m = 1; m <= totalMonths; m++) {
+        const intPortion = regBalance * monthlyRate;
+        const prinPortion = baseEMI - intPortion;
+        regTotalInterest += intPortion;
+        regBalance -= prinPortion;
+        if (regBalance <= 0) break;
+      }
+      const regTotalAmount = P + regTotalInterest;
+
+      // 2. Calculate Accelerated Payoff Amortization
+      const isPrepayActive = chkEnablePrepay.checked;
+      const extraEmisPerYear = isPrepayActive ? parseInt(rangeExtraEmis.value) : 0;
+      const annualStepUpPct = isPrepayActive ? (parseFloat(inpStepup.value) || 0) / 100 : 0;
+      const extraMonthly = isPrepayActive ? (parseFloat(inpExtraMonthly.value) || 0) : 0;
+      const lumpsum = isPrepayActive ? (parseFloat(inpLumpsum.value) || 0) : 0;
+      const lumpsumYear = parseInt(selLumpsumYr.value);
+
+      let accBalance = P;
+      let accTotalInterest = 0;
+      let accTotalPrepayment = 0;
+      let accMonths = 0;
+      let currentYearEMI = baseEMI;
+      
+      let scheduleRows = [];
+      let yearOpening = P;
+      let yearInterestAcc = 0;
+      let yearRegularEMIAcc = 0;
+      let yearPrepayAcc = 0;
+      let currentYearIndex = 1;
+
+      for (let m = 1; m <= totalMonths * 2; m++) { // Max boundary
+        if (accBalance <= 0) break;
+        accMonths++;
+
+        // Apply Annual Step-Up at beginning of each year (starting year 2)
+        if (m > 1 && (m - 1) % 12 === 0) {
+          if (annualStepUpPct > 0) {
+            currentYearEMI = currentYearEMI * (1 + annualStepUpPct);
+          }
+        }
+
+        const intMonth = accBalance * monthlyRate;
+        accTotalInterest += intMonth;
+        yearInterestAcc += intMonth;
+
+        let scheduledMonthly = currentYearEMI + extraMonthly;
+        let prinMonth = scheduledMonthly - intMonth;
+
+        // Extra EMI paid at end of year (month 12, 24, 36...)
+        let extraEmiMonthAmount = 0;
+        if (m % 12 === 0 && extraEmisPerYear > 0) {
+          extraEmiMonthAmount = currentYearEMI * extraEmisPerYear;
+        }
+
+        // Lumpsum in specified year (month 12 of that year)
+        let lumpsumMonthAmount = 0;
+        if (m === lumpsumYear * 12 && lumpsum > 0) {
+          lumpsumMonthAmount = lumpsum;
+        }
+
+        const thisPrepayTotal = extraMonthly + extraEmiMonthAmount + lumpsumMonthAmount;
+        accTotalPrepayment += thisPrepayTotal;
+        yearPrepayAcc += thisPrepayTotal;
+        yearRegularEMIAcc += currentYearEMI;
+
+        const totalPrinReduction = prinMonth + extraEmiMonthAmount + lumpsumMonthAmount;
+        accBalance -= totalPrinReduction;
+
+        // If balance drops to 0 or below, loan is paid off early!
+        if (accBalance <= 0) {
+          accBalance = 0;
+          scheduleRows.push({
+            year: `Year ${currentYearIndex} (Paid Off 🎉)`,
+            opening: yearOpening,
+            regularEmi: yearRegularEMIAcc,
+            prepay: yearPrepayAcc,
+            interest: yearInterestAcc,
+            closing: 0
+          });
+          break;
+        }
+
+        // Year end boundary push
+        if (m % 12 === 0) {
+          scheduleRows.push({
+            year: `Year ${currentYearIndex}`,
+            opening: yearOpening,
+            regularEmi: yearRegularEMIAcc,
+            prepay: yearPrepayAcc,
+            interest: yearInterestAcc,
+            closing: accBalance
+          });
+          currentYearIndex++;
+          yearOpening = accBalance;
+          yearInterestAcc = 0;
+          yearRegularEMIAcc = 0;
+          yearPrepayAcc = 0;
+        }
+      }
+
+      // Calculations summary
+      const interestSaved = Math.max(0, regTotalInterest - accTotalInterest);
+      const monthsSaved = Math.max(0, totalMonths - accMonths);
+      const yearsSavedNum = Math.floor(monthsSaved / 12);
+      const remainingMonthsSaved = monthsSaved % 12;
+
+      const newTenureYears = Math.floor(accMonths / 12);
+      const newTenureMonths = accMonths % 12;
+
+      // Update DOM values
+      document.getElementById('res-emi-val').innerText = formatMoney(baseEMI);
+      document.getElementById('res-principal-val').innerText = formatMoney(P);
+      document.getElementById('res-reg-interest').innerText = formatMoney(regTotalInterest);
+      document.getElementById('res-reg-total').innerText = formatMoney(regTotalAmount);
+
+      document.getElementById('res-acc-interest').innerText = formatMoney(accTotalInterest);
+      document.getElementById('res-acc-total').innerText = formatMoney(P + accTotalInterest);
+      
+      // Update Banner & Savings Highlights
+      if (isPrepayActive && (extraEmisPerYear > 0 || annualStepUpPct > 0 || extraMonthly > 0 || lumpsum > 0)) {
+        impactBanner.classList.remove('hidden');
+        document.getElementById('res-interest-saved').innerText = formatMoney(interestSaved);
+        document.getElementById('badge-tenure-saved').innerText = `Save ${yearsSavedNum} Yrs ${remainingMonthsSaved} Mos`;
+        document.getElementById('lbl-orig-tenure').innerText = `${Math.floor(totalMonths/12)} Yrs (${totalMonths} Mos)`;
+        document.getElementById('lbl-new-tenure').innerText = `${newTenureYears} Yrs ${newTenureMonths} Mos (${accMonths} Mos)`;
+        document.getElementById('comparison-mode-tag').innerText = "Accelerated Payoff Active";
+        document.getElementById('comparison-mode-tag').className = "text-[10px] bg-emerald-100 font-bold px-2 py-0.5 rounded text-emerald-800";
+        document.getElementById('chart-saved-legend').classList.remove('hidden');
+      } else {
+        impactBanner.classList.add('hidden');
+        document.getElementById('comparison-mode-tag').innerText = "Standard Plan";
+        document.getElementById('comparison-mode-tag').className = "text-[10px] bg-slate-100 font-semibold px-2 py-0.5 rounded text-slate-600";
+        document.getElementById('chart-saved-legend').classList.add('hidden');
+      }
+
+      renderTable(scheduleRows, true);
+      updateChart(P, accTotalInterest, interestSaved);
+    }
+
+    // Chart.js Donut Visualization
+    function updateChart(principal, interestPaid, interestSaved) {
+      const ctx = document.getElementById('ratioChart').getContext('2d');
+      const safeP = Math.max(0, principal);
+      const safeI = Math.max(0, interestPaid);
+      const safeSaved = Math.max(0, interestSaved);
+
+      const chartData = safeSaved > 0 ? [safeP, safeI, safeSaved] : [safeP, safeI];
+      const chartColors = safeSaved > 0 ? ['#94a3b8', '#10b981', '#2dd4bf'] : ['#94a3b8', '#10b981'];
+      const chartLabels = safeSaved > 0 
+        ? ['Principal Amount', 'Interest Paid', 'Interest Saved'] 
+        : ['Principal Amount', 'Total Interest'];
+
+      if (ratioChart) {
+        ratioChart.data.labels = chartLabels;
+        ratioChart.data.datasets[0].data = chartData;
+        ratioChart.data.datasets[0].backgroundColor = chartColors;
+        ratioChart.update();
+      } else {
+        ratioChart = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: chartLabels,
+            datasets: [{
+              data: chartData,
+              backgroundColor: chartColors,
+              borderWidth: 2,
+              borderColor: '#ffffff',
+              hoverOffset: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return ` ${context.label}: ${formatMoney(context.raw || 0)}`;
+                  }
+                }
+              }
+            },
+            cutout: '72%'
+          }
+        });
+      }
+    }
+
+    // Render Dynamic Amortization Table
+    function renderTable(rows, isLoanMode) {
+      const tbody = document.getElementById('schedule-table-body');
+      tbody.innerHTML = '';
+
+      if (!rows || rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">No data generated.</td></tr>`;
+        return;
+      }
+
+      rows.forEach((r, idx) => {
+        const isPaidOffRow = r.year.includes('Paid Off');
+        const tr = document.createElement('tr');
+        tr.className = isPaidOffRow 
+          ? 'bg-emerald-100/70 font-bold border-2 border-emerald-500' 
+          : (idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/70');
+
+        if (isLoanMode) {
+          tr.innerHTML = `
+            <td class="py-3 px-4 sm:px-6 font-semibold text-slate-800">${r.year}</td>
+            <td class="py-3 px-4 sm:px-6 text-right text-slate-600">${formatMoney(r.opening)}</td>
+            <td class="py-3 px-4 sm:px-6 text-right text-slate-700">${formatMoney(r.regularEmi)}</td>
+            <td class="py-3 px-4 sm:px-6 text-right font-bold text-emerald-600">${r.prepay > 0 ? '+' + formatMoney(r.prepay) : '—'}</td>
+            <td class="py-3 px-4 sm:px-6 text-right text-rose-600 font-medium">${formatMoney(r.interest)}</td>
+            <td class="py-3 px-4 sm:px-6 text-right font-extrabold text-slate-900">${formatMoney(r.closing)}</td>
+          `;
+        } else {
+          tr.innerHTML = `
+            <td class="py-3 px-4 sm:px-6 font-semibold text-slate-800">${r.year}</td>
+            <td class="py-3 px-4 sm:px-6 text-right text-slate-600">${formatMoney(r.opening)}</td>
+            <td class="py-3 px-4 sm:px-6 text-right text-slate-700">${formatMoney(r.regularEmi)}</td>
+            <td class="py-3 px-4 sm:px-6 text-right font-bold text-emerald-600 hidden">—</td>
+            <td class="py-3 px-4 sm:px-6 text-right text-emerald-600 font-medium">+${formatMoney(r.interest)}</td>
+            <td class="py-3 px-4 sm:px-6 text-right font-extrabold text-slate-900">${formatMoney(r.closing)}</td>
+          `;
+        }
+        tbody.appendChild(tr);
+      });
+    }
+
+    // CSV Download Function
+    function exportCSV() {
+      const rows = document.querySelectorAll("#schedule-table-body tr");
+      if (!rows.length) return;
+
+      let csvContent = "data:text/csv;charset=utf-8,Period,Opening Balance,Regular EMI,Prepayment,Interest,Closing Balance\n";
+
+      rows.forEach(row => {
+        const cols = row.querySelectorAll("td");
+        if (cols.length >= 5) {
+          const rowData = Array.from(cols).map(c => `"${c.innerText.replace(/[^0-9a-zA-Z ,.₹$€£+—]/g, '').trim()}"`).join(",");
+          csvContent += rowData + "\n";
+        }
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `iCalculator_Fast_Payoff_Schedule.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Initialize application on load
+    window.onload = function() {
+      document.getElementById('cur-year').innerText = new Date().getFullYear();
+      switchTab('EMI');
+    };
+  </script>
+</body>
+</html>
